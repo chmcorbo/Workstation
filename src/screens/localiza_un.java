@@ -1,0 +1,419 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package screens;
+
+import java.awt.Cursor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JTable;
+import net.coderazzi.filters.gui.AutoChoices;
+import net.coderazzi.filters.gui.TableFilterHeader;
+import javax.swing.ListSelectionModel;
+import classes.*;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+/**
+ *
+ * @author ROBSMAC
+ */
+//public class dth_mr_cadastro extends javax.swing.JFrame {
+public class localiza_un extends javax.swing.JDialog {
+
+    Integer fID = 0;
+    String sSituacao = "";
+
+    class tab_mouse extends MouseAdapter {
+
+        JTable jtb_tabela;
+        public tab_mouse(JTable tabela) {
+            jtb_tabela = tabela;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            UN_Solucao(jtb_tabela);
+        }
+    }
+
+    class tab_tecla extends KeyAdapter {
+
+        JTable jtb_tabela;
+        public tab_tecla(JTable tabela) {
+            jtb_tabela = tabela;
+        }
+
+        @Override
+        public void keyReleased(KeyEvent event) {
+            UN_Solucao(jtb_tabela);
+        }
+    }
+
+    public void UN_Solucao(JTable jTbl) {
+        if (jTbl.getSelectedRow() == -1) {
+            // desabilitar solucao
+            fID = 0;
+            sSituacao = "";
+            jbt_alterar_empresa.setEnabled(false);
+        } else {
+            fID = Integer.parseInt(jTbl.getValueAt(jTbl.getSelectedRow(), 1).toString());
+            sSituacao = jTbl.getValueAt(jTbl.getSelectedRow(), 0).toString();
+            
+            jbt_alterar_empresa.setEnabled(true);
+            if (!"SIM".equals(sSituacao.trim().toUpperCase())) {
+                //jbt_alterar_empresa.setEnabled(true);
+                jbt_alterar_empresa.setText("Solucionar");
+            } else {
+                //jbt_alterar_empresa.setEnabled(false);
+                jbt_alterar_empresa.setText("Alterar empresa");
+            }
+
+        }
+    }
+
+    scr_Menu mn;
+    JTable main_tab;
+
+    /**
+     * Creates new form dth_mr_cadastro
+     */
+    public localiza_un() {
+        initComponents();
+    }
+
+    public localiza_un(scr_Menu mn, boolean modal) {
+        this(mn, modal, "");
+    }
+
+    public localiza_un(scr_Menu mn, boolean modal, String sCidade) {
+        super(mn, modal);
+        initComponents();
+
+        this.mn = mn;
+        //atualiza_painel();
+
+        jtxt_cidade.setText(sCidade);
+        jtxta_orientacoes.setCaretPosition(0);
+        global.open_modal(this, "Cadastro de UNs");
+    }
+
+    public void atualiza_painel() {
+
+        jbt_alterar_empresa.setEnabled(false);
+        
+        Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
+        Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
+        jpnl_planilha.removeAll();
+        jpnl_planilha.repaint();
+        jpnl_planilha.revalidate();
+
+        String query = "CALL workstation_bcc.app_uns_localizar_03('" + jtxt_cidade.getText().trim() + "', '" + jtxt_un.getText().trim() + "')";
+        try {
+            setCursor(hourglassCursor);
+            JTable tab = global.getTable(query, jpnl_planilha);
+
+            int invisible_ids[] = {1};
+            int column_widths[] = {25, 50, 100, 50, 100, 50};
+
+            global.hide_columns(invisible_ids, tab);
+            global.adjust_columns(column_widths, tab);
+
+            main_tab = tab;
+
+            TableFilterHeader filter = new TableFilterHeader(main_tab, AutoChoices.ENABLED);
+            filter.setAdaptiveChoices(true);
+
+            main_tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            main_tab.addMouseListener(new tab_mouse(main_tab));
+            main_tab.addKeyListener(new tab_tecla(main_tab));
+
+            jlbl_status_bar.setText(main_tab.getRowCount() + " registro(s) encontrado(s) - códigos de cidade e parceira entre parênteses");
+            setCursor(normalCursor);
+
+        } catch (Exception ex) {
+            setCursor(normalCursor);
+            jlbl_status_bar.setText("Erro na última consulta");
+            //Logger.getLogger(div_turno.class.getName()).log(Level.SEVERE, null, ex);
+            global.show_error_message("Problemas na consulta.\n\nErro original: " + ex.getMessage());
+        }
+
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jpnl_busca = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jbt_localizar = new javax.swing.JButton();
+        jtxt_cidade = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jtxt_un = new javax.swing.JTextField();
+        jbt_alterar_empresa = new javax.swing.JButton();
+        jlbl_status_bar = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jtxta_orientacoes = new javax.swing.JTextArea();
+        jpnl_planilha = new javax.swing.JPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        jmni_servicos_fechar = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Cadastro de usuários");
+        setBackground(new java.awt.Color(255, 51, 204));
+
+        jpnl_busca.setBackground(new java.awt.Color(255, 255, 204));
+        jpnl_busca.setPreferredSize(new java.awt.Dimension(593, 56));
+
+        jLabel1.setText("Cidade (parte ou todo)");
+
+        jbt_localizar.setText("Localizar");
+        jbt_localizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbt_localizarActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Parceira ou UN (parte ou todo)");
+
+        jtxt_un.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtxt_unActionPerformed(evt);
+            }
+        });
+
+        jbt_alterar_empresa.setText("Atualizar");
+        jbt_alterar_empresa.setEnabled(false);
+        jbt_alterar_empresa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbt_alterar_empresaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jpnl_buscaLayout = new javax.swing.GroupLayout(jpnl_busca);
+        jpnl_busca.setLayout(jpnl_buscaLayout);
+        jpnl_buscaLayout.setHorizontalGroup(
+            jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                        .addComponent(jtxt_cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                        .addComponent(jtxt_un, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jbt_localizar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbt_alterar_empresa)
+                .addContainerGap())
+        );
+        jpnl_buscaLayout.setVerticalGroup(
+            jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                .addGroup(jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jtxt_cidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                        .addComponent(jtxt_un, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(25, Short.MAX_VALUE))
+                    .addGroup(jpnl_buscaLayout.createSequentialGroup()
+                        .addGroup(jpnl_buscaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jbt_localizar)
+                            .addComponent(jbt_alterar_empresa))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+        );
+
+        jlbl_status_bar.setText("Aguardando comando");
+
+        jScrollPane1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+
+        jtxta_orientacoes.setEditable(false);
+        jtxta_orientacoes.setBackground(new java.awt.Color(255, 204, 204));
+        jtxta_orientacoes.setColumns(20);
+        jtxta_orientacoes.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        jtxta_orientacoes.setLineWrap(true);
+        jtxta_orientacoes.setRows(5);
+        jtxta_orientacoes.setText("1) Para os casos de Falta de Código de Empresa, abra chamado no Lince para acerto do cadastro da UN. UNs sem o código de empresa não são selecionáveis para associar a OSs.\n\n2) Aonde OK está \"Não\", mesmo que haja código de empresa, vá ao localizador de parceiras para verificar se ela realmente não existe ou está com código diferente. Em ambos casos, converse com o Líder de campo para verificar aonde está o erro. Caso o problema seja apenas uma questão de código, abra chamado no Lince para acerto do cadastro da UN, de acordo com o código de empresa adequado.\n\n3) Caso não localize a UN HFC, é importante verificar se a carga manual foi feita pelo Supervisor de Atendimento.");
+        jScrollPane1.setViewportView(jtxta_orientacoes);
+
+        jpnl_planilha.setBackground(new java.awt.Color(204, 204, 255));
+        jpnl_planilha.setToolTipText("");
+
+        javax.swing.GroupLayout jpnl_planilhaLayout = new javax.swing.GroupLayout(jpnl_planilha);
+        jpnl_planilha.setLayout(jpnl_planilhaLayout);
+        jpnl_planilhaLayout.setHorizontalGroup(
+            jpnl_planilhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jpnl_planilhaLayout.setVerticalGroup(
+            jpnl_planilhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 180, Short.MAX_VALUE)
+        );
+
+        jMenu1.setText("Serviços");
+        jMenu1.add(jSeparator1);
+
+        jmni_servicos_fechar.setText("Fechar janela");
+        jmni_servicos_fechar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmni_servicos_fecharActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jmni_servicos_fechar);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jpnl_planilha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jlbl_status_bar, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
+                            .addComponent(jpnl_busca, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jpnl_busca, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jpnl_planilha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jlbl_status_bar)
+                .addGap(0, 0, 0))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jmni_servicos_fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmni_servicos_fecharActionPerformed
+        // TODO add your handling code here:
+        //global.show_message("Fechar janela");
+        this.dispose();
+    }//GEN-LAST:event_jmni_servicos_fecharActionPerformed
+
+    private void jtxt_unActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxt_unActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtxt_unActionPerformed
+
+    private void jbt_localizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbt_localizarActionPerformed
+        // TODO add your handling code here:
+        atualiza_painel();
+    }//GEN-LAST:event_jbt_localizarActionPerformed
+
+    private void jbt_alterar_empresaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbt_alterar_empresaActionPerformed
+        solucionar_un sun_tela = new solucionar_un(new javax.swing.JFrame(), true, fID);
+        sun_tela.setTitle("Cadastro de UN - Solução de problemas");
+        sun_tela.setLocation
+        (
+        (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - sun_tela.getWidth() / 2,
+        (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - sun_tela.getHeight() / 2
+        );
+        //sun_tela.show();
+        sun_tela.setVisible(true);
+    }//GEN-LAST:event_jbt_alterar_empresaActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(localiza_un.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(localiza_un.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(localiza_un.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(localiza_un.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new localiza_un().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JButton jbt_alterar_empresa;
+    private javax.swing.JButton jbt_localizar;
+    private javax.swing.JLabel jlbl_status_bar;
+    private javax.swing.JMenuItem jmni_servicos_fechar;
+    private javax.swing.JPanel jpnl_busca;
+    private javax.swing.JPanel jpnl_planilha;
+    private javax.swing.JTextField jtxt_cidade;
+    private javax.swing.JTextField jtxt_un;
+    private javax.swing.JTextArea jtxta_orientacoes;
+    // End of variables declaration//GEN-END:variables
+}

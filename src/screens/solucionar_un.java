@@ -1,0 +1,391 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package screens;
+
+import classes.Db_class;
+import classes.cLista_IDxDADO;
+import classes.global;
+import classes.global_class;
+import java.awt.Cursor;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import net.coderazzi.filters.gui.AutoChoices;
+import net.coderazzi.filters.gui.TableFilterHeader;
+
+/**
+ *
+ * @author ROBSMAC
+ */
+public class solucionar_un extends javax.swing.JDialog {
+
+    Integer fID = 0;
+    List<cLista_IDxDADO> lst; //controlar valor e texto de cada opcao de Combo Box
+    Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
+    Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
+    /**
+     * Creates new form solucionar_un
+     */
+    public solucionar_un(java.awt.Frame parent, boolean modal, Integer pID) {
+        super(parent, ModalityType.TOOLKIT_MODAL); //ou super(parent, modal);
+        initComponents();
+
+        fID = pID;
+        Atualiza_Tela();
+    }
+
+    public void Atualiza_Tela() {
+
+        jcb_empresa_nova.removeAllItems();
+        jlbl_status_bar.setText("Atualizando tela...");
+
+        Connection conn_ativ;
+        try {
+            setCursor(hourglassCursor);
+            conn_ativ = Db_class.mysql_conn();
+            CallableStatement cSP = conn_ativ.prepareCall("{call workstation_bcc.app_uns_analisar(?)}");
+            cSP.setInt("pID", fID);
+            cSP.execute();
+            ResultSet rs = cSP.getResultSet();
+            if (rs.next()) {
+                jtxt_un.setText(rs.getString(3)!=null?rs.getString(3):"");
+                jtxt_cidade.setText(rs.getString(2)!=null?rs.getString(2):"");
+                jtxt_empresa_atual.setText((rs.getString(6)!= null?rs.getString(6) + " (" + rs.getString(5) + ")":""));
+                jtxt_problema.setText(rs.getString(8)!=null?rs.getString(8):"");
+                jtxt_atividade.setText(rs.getString(7)!=null?rs.getString(7):"");
+                //if (rs.getInt(9) == 1) {
+                if (!"".equals(jtxt_un.getText())) {
+                    jbt_salvar.setEnabled(true);
+                } else {
+                    jbt_salvar.setEnabled(false);
+                }
+                //empresas disponíveis
+                //global_class.preencher_combobox(jcb_empresa_nova, "-- Selecione uma empresa --", "CALL workstation_bcc.app_uns_empresas(" + rs.getInt(4) + ", '" + rs.getString(7) + "')");
+                //lst = global_class.preencher_array_IDxDADO(1, 2, "CALL workstation_bcc.app_uns_empresas(" + rs.getInt(4) + ", '" + rs.getString(7) + "')");
+                //lst = global_class.preencher_array_IDxDADO(1, 2, "CALL workstation_bcc.app_uns_empresas(" + rs.getInt(4) + ", '" + rs.getString(7) + "')");
+                lst = global_class.preencher_array_IDxDADO(1, 2, "CALL workstation_bcc.app_uns_empresas(" + rs.getInt(4) + ", '" + rs.getString(7) + "')");
+                if (lst.size() > 0) {
+                    lst.add(0, new cLista_IDxDADO("-1", "-- Selecione uma empresa --"));
+                    for (int i = 0; i < lst.size(); i++) {
+                        cLista_IDxDADO lst_item = lst.get(i);
+                        jcb_empresa_nova.addItem(lst_item.getsDADOS() + (lst_item.getsID()!="-1"?" (" + lst_item.getsID() + ")":""));
+                    }
+                    jlbl_status_bar.setText("Aguardando a escolha de uma parceira");
+                } else {
+                    jlbl_status_bar.setText("Nenhuma empresa na cidade");
+                }
+            } else {
+                jtxt_un.setText("");
+                jtxt_cidade.setText("");
+                jtxt_empresa_atual.setText("");
+                jtxt_problema.setText("");
+                jtxt_atividade.setText("");
+                //empresas disponiveis
+                jcb_empresa_nova.setModel(null);
+
+                jlbl_status_bar.setText("A consulta não trouxe resultados. Atualize a lista de UNs");
+            }
+            rs.close();
+            conn_ativ.close();
+            conn_ativ = null;
+            setCursor(normalCursor);
+
+        } catch (Exception ex) {
+            setCursor(normalCursor);
+            jlbl_status_bar.setText("Erro na última consulta");
+            global.show_error_message("Problemas na consulta.\n\nErro original: " + ex.getMessage());
+            try {
+                conn_ativ = null;
+            } catch (Exception ex0) {
+            }
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        jtxt_un = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jtxt_cidade = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jtxt_empresa_atual = new javax.swing.JTextField();
+        jtxt_atividade = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jtxt_problema = new javax.swing.JTextArea();
+        jLabel6 = new javax.swing.JLabel();
+        jcb_empresa_nova = new javax.swing.JComboBox();
+        jbt_salvar = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jlbl_status_bar = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+
+        jLabel1.setText("UN");
+
+        jtxt_un.setEditable(false);
+        jtxt_un.setText("jTextField1");
+
+        jLabel2.setText("Cidade");
+
+        jtxt_cidade.setEditable(false);
+        jtxt_cidade.setText("jTextField2");
+
+        jLabel3.setText("Empresa atual");
+
+        jLabel4.setText("Atividade");
+
+        jtxt_empresa_atual.setEditable(false);
+        jtxt_empresa_atual.setText("jTextField3");
+
+        jtxt_atividade.setEditable(false);
+        jtxt_atividade.setText("jTextField4");
+
+        jLabel5.setText("Problema encontrado e possível solução");
+
+        jtxt_problema.setEditable(false);
+        jtxt_problema.setColumns(20);
+        jtxt_problema.setLineWrap(true);
+        jtxt_problema.setRows(5);
+        jScrollPane1.setViewportView(jtxt_problema);
+
+        jLabel6.setText("Empresas disponíveis na cidade");
+
+        jcb_empresa_nova.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jbt_salvar.setText("Salvar");
+        jbt_salvar.setEnabled(false);
+        jbt_salvar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbt_salvarActionPerformed(evt);
+            }
+        });
+
+        jlbl_status_bar.setBackground(new java.awt.Color(255, 204, 204));
+        jlbl_status_bar.setText("Aguardando comando");
+        jlbl_status_bar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jlbl_status_bar.setOpaque(true);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jtxt_un, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jtxt_cidade)))
+                    .addComponent(jSeparator1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jtxt_empresa_atual, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jtxt_atividade, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4)))
+                            .addComponent(jLabel6))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jcb_empresa_nova, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jbt_salvar)))
+                .addContainerGap())
+            .addComponent(jlbl_status_bar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jtxt_un, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jtxt_cidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jtxt_empresa_atual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jtxt_atividade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jcb_empresa_nova, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbt_salvar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jlbl_status_bar))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jbt_salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbt_salvarActionPerformed
+        //verificando campos
+        if (fID == 0) {
+            this.setVisible(false);
+            global.show_warning_message("Nenhuma UN selecionada");
+            this.setVisible(true);
+            return;
+        }
+
+        if (jcb_empresa_nova.getSelectedIndex() <= 0) {
+            this.setVisible(false);
+            global.show_warning_message("Selecione uma empresa");
+            this.setVisible(true);
+            return;
+        }
+
+        //gravando
+        //identificando o ID da empresa selecionada
+        setCursor(hourglassCursor);
+
+        cLista_IDxDADO lst_empresa = lst.get(jcb_empresa_nova.getSelectedIndex());
+        Connection conn;
+        try {
+            StringBuilder sb_sql = new StringBuilder();
+            conn = Db_class.mysql_conn();
+            //atualizando UN
+            sb_sql.append("UPDATE workstation_bcc.tbl_un_copinfo \n");
+            sb_sql.append("SET \n");
+            sb_sql.append("id_empresa = ").append(lst_empresa.getsID()).append(", \n");
+            sb_sql.append("nm_empresa = '").append(lst_empresa.getsDADOS()).append("' \n");
+            sb_sql.append("where id_relacao = ").append(fID);
+            
+            global_class.mysql_insert(conn, sb_sql.toString());
+
+            //registrando no Log
+            sb_sql.delete(0, sb_sql.length());
+            sb_sql.append("insert into workstation_bcc.tbl_un_copinfo_log \n");
+            sb_sql.append("(id_relacao, data_hora, usuario, campo, acao, de, para) \n");
+            sb_sql.append("values \n");
+            sb_sql.append("( \n");
+            sb_sql.append(fID).append(", \n");
+            sb_sql.append("now(), \n");
+            sb_sql.append("'").append(System.getProperty("user.name").toUpperCase()).append("', \n");
+            sb_sql.append("'Empresa', \n");
+            sb_sql.append("'Atualização', \n");
+            sb_sql.append("'").append(jtxt_empresa_atual.getText()).append("', \n");
+            sb_sql.append("'").append(jcb_empresa_nova.getItemAt(jcb_empresa_nova.getSelectedIndex())).append("' \n");
+            sb_sql.append(") \n");
+            
+            global_class.mysql_insert(conn, sb_sql.toString());
+
+            //fechando a conexao
+            Db_class.close_conn(conn);
+            setCursor(normalCursor);
+            this.dispose();
+            return;
+        } catch (Exception ex) {
+            setCursor(normalCursor);
+            global.show_error_message("Problemas ao salvar. Favor verificar se o cadastro foi salvo.\n\nErro:\n" + ex.getMessage());
+            try {
+                conn = null;
+            } catch (Exception e) {
+            }
+        }
+    }//GEN-LAST:event_jbt_salvarActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(solucionar_un.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(solucionar_un.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(solucionar_un.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(solucionar_un.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the dialog */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                solucionar_un dialog = new solucionar_un(new javax.swing.JFrame(), true, 0);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JButton jbt_salvar;
+    private javax.swing.JComboBox jcb_empresa_nova;
+    private javax.swing.JLabel jlbl_status_bar;
+    private javax.swing.JTextField jtxt_atividade;
+    private javax.swing.JTextField jtxt_cidade;
+    private javax.swing.JTextField jtxt_empresa_atual;
+    private javax.swing.JTextArea jtxt_problema;
+    private javax.swing.JTextField jtxt_un;
+    // End of variables declaration//GEN-END:variables
+}
